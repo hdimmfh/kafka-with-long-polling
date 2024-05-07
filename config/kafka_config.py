@@ -11,10 +11,11 @@ from kafka import TopicPartition
 
 class KafkaServer:
     def __init__(self, log):
+
         self.log = log
         self.loop = asyncio.get_event_loop()
         self.partitions = None
-        self.consumer = None
+        self.producer = None
         self._state = 0
 
         # env variables
