@@ -9,4 +9,17 @@ kafka의 컨슈머, 프로듀서를 활용하여 데이터 파이프라인을 �
 1. 필요한 라이브러리를 설치합니다. (requirements.txt 참고)
 2. logging 설정 파일을 작성합니다.
 3. dotenv 활용을 통한 환경변수 로드를 위해 .env 파일에 kafka 환경변수를 작성합니다.
-4. kafka 설정 파일을 작성합니다. 
+4. kafka 설정 파일을 작성합니다.
+
+<kbd>
+  <img width="1050" alt="ppt image1" src="https://github.com/hdimmfh/long-polling-with-kafka/assets/74033655/195b9f02-3ee6-4e65-a340-f1afb65a75df">
+</kbd>
+<kbd>
+  <img width="1050" alt="ppt image2" src="https://github.com/hdimmfh/long-polling-with-kafka/assets/74033655/70b341b5-01a3-4cb2-8a66-937bfea09c68">
+</kbd>
+<kbd>
+ <img width="1050" alt="ppt image3" src="https://github.com/hdimmfh/long-polling-with-kafka/assets/74033655/dc072ae2-01de-4219-b558-3a0447acfd7e">
+</kbd>
+<kbd>
+  <img width="1050" alt="ppt image4" src="https://github.com/hdimmfh/long-polling-with-kafka/assets/74033655/15c2e730-6723-49f7-b022-0864ddfb9656">
+</kbd>
