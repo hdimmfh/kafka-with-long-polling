@@ -1,60 +1,46 @@
 import asyncio
+from io import BytesIO
 
 from dotenv import load_dotenv
-from fastapi import FastAPI
+from fastapi import FastAPI, status
+from fastapi.responses import JSONResponse
 
 from config.kafka_config import KafkaServer
-from config.log_config import log_config
 
 load_dotenv()
 app = FastAPI()
-log = log_config()
-kafka = KafkaServer(log)
+kafka = KafkaServer()
 
 
-@app.get("/ping")
-async def root():
-    return "pong"
-
-
-@app.get("/initialize")
-async def initialize():
-    await kafka.initialize()
-    return 200
-
-
-@app.get("/send/{message}")
-async def send(message):
-    if not kafka.producer:
-        log.info("kafka is not initialized now initializing..")
-        await kafka.initialize()
-    await kafka.send(message)
-    return 200
-
-
-@app.get("/get")
-async def get():
+@app.get("/consume")
+async def consume():
     try:
         if not kafka.consumer:
-            log.info("kafka is not initialized now initializing..")
             await kafka.initialize()
-        msg = await asyncio.wait_for(kafka.get(), timeout=5.0)
-        print(msg)
-        return 200
+        msg = await asyncio.wait_for(kafka.consume(), timeout=5.0)
+        msg = BytesIO(msg.value).getvalue().decode('utf-8')
+        return JSONResponse(content={'content': msg}, status_code=status.HTTP_200_OK)
     except asyncio.TimeoutError as e:
-        log.error("asyncio timeout error")
-        return 500
+        return JSONResponse(content={'content': 'no content'}, status_code=status.HTTP_204_NO_CONTENT)
 
 
-@app.get("kill_producer")
+@app.get("/produce/{message}")
+async def produce(message):
+    if not kafka.producer:
+        await kafka.initialize()
+    await kafka.produce(message)
+    return JSONResponse(content={'content': 'succeed'}, status_code=status.HTTP_200_OK)
+
+
+@app.get("/kill/producer")
 async def kill_producer():
     if kafka.producer:
         await kafka.producer.stop()
-    return 200
+    return JSONResponse(content={'content': 'succeed'}, status_code=status.HTTP_200_OK)
 
 
-@app.get("kill_consumer")
+@app.get("/kill/consumer")
 async def kill_consumer():
     if kafka.consumer:
         await kafka.consumer.stop()
-    return 200
+    return JSONResponse(content={'content': 'succeed'}, status_code=status.HTTP_200_OK)
