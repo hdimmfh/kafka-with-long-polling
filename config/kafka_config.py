@@ -1,16 +1,16 @@
 import asyncio
 import json
 import os
-from random import randint
-from typing import Any, Set
+from typing import Set
+from uuid import uuid4
 
 from aiokafka import AIOKafkaProducer, AIOKafkaConsumer
 from kafka import TopicPartition
-from uuid import uuid4
+
 
 class KafkaServer:
     def __init__(self):
-        self.loop = asyncio.get_event_loop()
+        self.loop = None
         self.partitions = None
         self.consumer = None
         self.producer = None
@@ -21,6 +21,8 @@ class KafkaServer:
         self.KAFKA_BOOTSTRAP_SERVERS = os.getenv('KAFKA_BOOTSTRAP_SERVERS', 'localhost:9092')
 
     async def initialize(self):
+        self.loop = asyncio.get_running_loop()
+
         group_id = f'{self.KAFKA_CONSUMER_GROUP_ID}'
         self.consumer = AIOKafkaConsumer(self.KAFKA_TOPIC,
                                          loop=self.loop,
