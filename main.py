@@ -1,8 +1,9 @@
 import asyncio
+import json
 from io import BytesIO
 
 from dotenv import load_dotenv
-from fastapi import FastAPI, status
+from fastapi import FastAPI, status, Response
 from fastapi.responses import JSONResponse
 
 from config.kafka_config import KafkaServer
@@ -12,16 +13,19 @@ app = FastAPI()
 kafka = KafkaServer()
 
 
-@app.get("/consume")
+@app.get("/consume", response_class=Response)
 async def consume():
     try:
         if not kafka.consumer:
             await kafka.initialize()
         msg = await asyncio.wait_for(kafka.consume(), timeout=5.0)
         msg = BytesIO(msg.value).getvalue().decode('utf-8')
-        return JSONResponse(content={'content': msg}, status_code=status.HTTP_200_OK)
-    except asyncio.TimeoutError as e:
-        return JSONResponse(content={'content': 'no content'}, status_code=status.HTTP_204_NO_CONTENT)
+        print(msg)
+        return JSONResponse(content={'content': json.loads(msg)}, status_code=status.HTTP_200_OK)
+    except asyncio.TimeoutError:
+        return JSONResponse(content={'content': 'error'}, status_code=status.HTTP_408_REQUEST_TIMEOUT)
+    except RuntimeError:
+        return JSONResponse(content={'content': 'error'}, status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @app.get("/produce/{message}")
